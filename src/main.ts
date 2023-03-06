@@ -3,6 +3,14 @@ import App from './App.vue';
 import MapVue from './packages'
 import "mapbox-gl/dist/mapbox-gl.css";
 import router  from "./router";
+import Vue3EasyDataTable from 'vue3-easy-data-table';
+import 'vue3-easy-data-table/dist/style.css';
+import AreaSelector from "@luohc92/vue3-area-selector";
+
+
 
 const app = createApp(App);
-app.use(MapVue).use(router).mount('#app')
+app.component('EasyDataTable', Vue3EasyDataTable);
+app.use(MapVue).use(router)
+app.use(AreaSelector);
+app.mount('#app')

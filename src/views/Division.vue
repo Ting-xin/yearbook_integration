@@ -4,7 +4,40 @@ import type { GlobalProps, Item, Link } from '../common';
 import { timeOrDefault, scrollToItem, Action } from '../common';
 import TreeItem from '../components/TreeItem.vue';
 import BasicMap from "../components/BasicMap.vue";
-import codesUrl from '../static/json/codes.json?url';
+import codesUrl from '../static/code/codes.json?url';
+import type { Header, Item as TableItem } from "vue3-easy-data-table";
+
+const headers: Header[] = [
+  { text: "originName", value: "originName" },
+  { text: "originCode", value: "originCode"},
+  { text: "changeTime", value: "changeTime"},
+  { text: "changeType", value: "changeType"},
+  { text: "changeContent", value: "changeContent"},
+  { text: "newName", value: "newName"},
+  { text: "newCode", value: "newCode"},
+];
+
+const tableItems: TableItem[] = [
+    {
+    "originName": "鼓楼区",
+    "changeTime": "2013",
+    "changeContent": "撤销南京市鼓楼区、下关区，设立新的南京市鼓楼区",
+    "newName": "鼓楼区",
+    "changeType": "市辖区合并",
+    "year": "2013",
+    "originCode": "350102",
+    "newCode": "350102",
+  },
+  {
+    "originName": "下关区",
+    "changeTime": "2013",
+    "changeContent": "撤销南京市鼓楼区、下关区，设立新的南京市鼓楼区",
+    "newName": "鼓楼区",
+    "changeType": "市辖区合并",
+    "originCode": "320106",
+    "newCode": "350102",
+  }
+];
 
 const codes = ref<Item[]>([{
   code: 233333,
@@ -119,17 +152,17 @@ function locateHash(): Item | undefined {
 </script>
 
 <template>
-  <main >
+  <main>
     <div class="left">
-          <div class="title">行政区划代码库</div>
-        <fieldset id="options">
-          <legend>选项</legend>
-          <label><input type="checkbox" v-model="options.hideSuccessors" />隐藏后继</label>
-          <label><input type="checkbox" v-model="options.hidePredecessors" />隐藏前身</label>
-        </fieldset>
+      <div class="title">行政区划代码库</div>
+      <fieldset id="options">
+        <legend>选项</legend>
+        <label><input type="checkbox" v-model="options.hideSuccessors" />隐藏后继</label>
+        <label><input type="checkbox" v-model="options.hidePredecessors" />隐藏前身</label>
+      </fieldset>
       <ul id="guide" class="top">
-          <TreeItem :item="guide" />
-        </ul>
+        <TreeItem :item="guide" />
+      </ul>
       <ul class="top">
         <TreeItem v-for="child in codes" :item="child" />
       </ul>
@@ -139,18 +172,15 @@ function locateHash(): Item | undefined {
         <BasicMap />
       </div>
       <div class="right_buttom">
-        table list
+        <EasyDataTable :headers="headers" :items="tableItems" />
       </div>
     </div>
   </main>
 </template>
 
 <style>
-body {
-  font-family: 'Roboto Mono', 'Noto Sans SC';
-}
 
-main{
+main {
   width: 100%;
   height: 100%;
   display: flex;
@@ -168,16 +198,14 @@ main .right {
   height: 800px;
 }
 
-.right .right_top{
-  height: 80%;
+.right .right_top {
+  height: 72%;
 }
 
-/* .right .right_top .mapboxgl-map{
-  position: relative;
-} */
-
 .right .right_buttom {
-  height: 20%;
+  height: 28%;
+  min-height: 100px;
+  overflow: auto;
 }
 
 .left .title {
@@ -212,6 +240,4 @@ ul {
 #options label:not(:last-child) {
   margin-right: 1ch;
 }
-
-
 </style>

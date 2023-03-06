@@ -1,12 +1,17 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHashHistory, createWebHistory } from "vue-router";
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes: [
     {
       path: "/division",
-      name: "Home",
+      name: "Division",
       component: () => import("./views/Division.vue"),
+    },
+    {
+      path: "/grid",
+      name: "Grid",
+      component: () => import("./views/Grid.vue"),
     },
     {
       path: "/help",

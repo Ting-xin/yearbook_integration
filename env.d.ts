@@ -2,6 +2,7 @@
 
 declare module "@mapbox/mapbox-gl-sync-move";
 declare module "mapbox-gl-compare";
+declare module "vue-switches";
 
 declare module "*.vue" {
   import type { DefineComponent } from "vue";
