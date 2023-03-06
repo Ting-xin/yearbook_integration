@@ -3,6 +3,7 @@
 declare module "@mapbox/mapbox-gl-sync-move";
 declare module "mapbox-gl-compare";
 declare module "vue-switches";
+declare module "h3-js"
 
 declare module "*.vue" {
   import type { DefineComponent } from "vue";

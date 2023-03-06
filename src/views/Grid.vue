@@ -2,11 +2,14 @@
 import mapboxgl from "mapbox-gl";
 import type { GeoJSONSourceRaw } from "mapbox-gl";
 import { onMounted, reactive, ref } from "vue";
-import geojsonUrl from '../static/geojson/鼓楼区.json?url';
+import geojsonUrl from '../static/geojson/南京市.json?url';
 import { AreaSelector } from "@luohc92/vue3-area-selector";
 import type { AreaDataDto, AreaSelectorPropsDto, AreaSelectorResultDto, Resolve, } from "@luohc92/vue3-area-selector";
 import "@luohc92/vue3-area-selector/dist/style.css";
 import Switches from 'vue-switches';
+import * as h3 from 'h3-js';
+import * as turf from "@turf/turf";
+import * as geojson2h3  from "geojson2h3";
 
 const isGrid = ref<boolean>(true)
 
@@ -61,7 +64,7 @@ onMounted(() => {
       container: 'grid_container',
       style: 'mapbox://styles/mapbox/light-v11', // style URL
       center: [118.78, 32], // starting position
-      zoom: 9 // starting zoom
+      zoom: 8 // starting zoom
     })
   });
 
@@ -69,11 +72,29 @@ onMounted(() => {
     const response = await fetch(geojsonUrl);
     const data = await response.json();
 
+    // h3 part
+    // console.log('data: ', data['features'][0]['geometry']['coordinates'][0])
+    let polygon = data['features'][0]['geometry']['coordinates'][0]
+    const hexagons = geojson2h3.featureToH3Set(data, 7)
+    console.log('hexagons: ', hexagons)
+    const h3_geometry = hexagons.map(i => {
+      let g = h3.cellToBoundary(i, true)
+      return turf.polygon([g])
+    })
+    const h3_collection = turf.featureCollection(h3_geometry)
+    console.log('h3_collection: ', h3_collection)
+
+
     if (state.map && !state.geojson) {
       state.map.addSource("my-data", {
         type: "geojson",
-        data,
+        data: {
+          'type': 'FeatureCollection',
+          'features': h3_collection['features']
+        }
       });
+
+      // state.map.getSource("hex").setData(h3_collection)
 
       state.map.addLayer({
         id: "my-layer",
@@ -95,9 +116,9 @@ onMounted(() => {
   <main>
     <div class="top">
       <div class="label">
-        <div>时间:</div>
+        <div>时间(年):</div>
         <div>
-          time
+          <input id="time_input" />
         </div>
       </div>
       <div class="label">
@@ -148,9 +169,25 @@ main .top .label {
 }
 
 #grid_container {
-  min-height: 600px;
+  min-height: 700px;
   height: 100%;
   width: 100%;
   position: relative;
+}
+
+#time_input{
+    outline-style: none ;
+    border: 1px solid #ccc; 
+    border-radius: 3px;
+    padding: 6px;
+    width: 80px;
+    font-size: 14px;
+    font-family: "Microsoft soft";
+}
+#time_input:focus{
+    border-color: #66afe9;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6)
 }
 </style>
