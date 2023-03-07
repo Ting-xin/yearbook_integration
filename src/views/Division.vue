@@ -179,7 +179,6 @@ function locateHash(): Item | undefined {
 </template>
 
 <style>
-
 main {
   width: 100%;
   height: 100%;

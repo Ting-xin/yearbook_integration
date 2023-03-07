@@ -18,6 +18,8 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@antv/s2": "^1.42.0",
+    "@antv/s2-vue": "^1.5.0",
     "@luohc92/vue3-area-selector": "^1.0.7",
     "@turf/turf": "^6.5.0",
     "geojson2h3": "^1.2.0",
@@ -25,6 +27,7 @@
     "mapbox-gl": "^2.13.0",
     "mapbox-gl-compare": "^0.4.1",
     "mapvue": "^0.3.1",
+    "turf-jenks": "^1.0.1",
     "vue": "^3.2.37",
     "vue-router": "^4.1.6",
     "vue-switches": "^2.0.1",

@@ -14,17 +14,17 @@ const router = createRouter({
       component: () => import("./views/Grid.vue"),
     },
     {
-      path: "/statistics",
+      path: "/staIntegre",
       name: "Statistics",
       component: () => import("./views/Statistics_Integration.vue"),
     },
     {
-      path: "/Spatial",
+      path: "/spaIntegre",
       name: "Spatial",
       component: () => import("./views/Spatial_Integration.vue"),
     },
     {
-      path: "/Spatial",
+      path: "/spaSta",
       name: "Spatialize",
       component: () => import("./views/Spatialize_Statistics.vue"),
     },

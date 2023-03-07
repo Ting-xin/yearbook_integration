@@ -1,3 +1,13 @@
+export interface Statistcs {
+  value: number | string,
+  time: string,
+  space: string,
+  index: string,
+  unit: string,
+  source: string,
+  note: string
+}
+
 export interface GlobalProps {
   options: {
     hideSuccessors: boolean,
