@@ -22,6 +22,7 @@
     "@antv/s2-vue": "^1.5.0",
     "@luohc92/vue3-area-selector": "^1.0.7",
     "@turf/turf": "^6.5.0",
+    "element-plus": "^2.3.1",
     "geojson2h3": "^1.2.0",
     "h3-js": "^4.1.0",
     "mapbox-gl": "^2.13.0",
