@@ -6,6 +6,7 @@ declare module "vue-switches";
 declare module "h3-js"
 declare module "@antv/s2"
 declare module "@antv/s2-vue"
+declare module "turf-jenks"
 
 declare module "*.vue" {
   import type { DefineComponent } from "vue";

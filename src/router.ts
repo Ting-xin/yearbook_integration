@@ -14,9 +14,19 @@ const router = createRouter({
       component: () => import("./views/Grid.vue"),
     },
     {
-      path: "/staIntegre",
+      path: "/statistics",
       name: "Statistics",
+      component: () => import("./views/Statistics.vue"),
+    },
+    {
+      path: "/staIntegre",
+      name: "Statistics_Integration",
       component: () => import("./views/Statistics_Integration.vue"),
+    },
+    {
+      path: "/spatial",
+      name: "Spatial",
+      component: () => import("./views/Spatial.vue"),
     },
     {
       path: "/spaIntegre",
@@ -29,9 +39,14 @@ const router = createRouter({
       component: () => import("./views/Spatialize_Statistics.vue"),
     },
     {
+      path: "/spaSta_operation",
+      name: "Spatialize_operation",
+      component: () => import("./views/Spatialize_Operation.vue"),
+    },
+    {
       path: "/help",
       name: "Help",
-      component: () => import("./views/Help.vue"),
+      component: () => import("./views/Statistics_Integration_copy.vue"),
     },
   ]
 });

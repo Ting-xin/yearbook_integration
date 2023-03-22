@@ -34,10 +34,10 @@ const areaSelectProps = reactive<AreaSelectorPropsDto>({
   },
 });
 const area = ref<AreaSelectorResultDto>({
-  district: "东城区",
-  code: "110101001",
-  city: "市辖区",
-  province: "北京市",
+  district: '',
+  code: "3201",
+  city: "南京市",
+  province: "江苏省",
 });
 
 const change = (data: AreaSelectorResultDto) => {
