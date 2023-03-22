@@ -41,12 +41,12 @@ const router = createRouter({
     {
       path: "/spaSta_operation",
       name: "Spatialize_operation",
-      component: () => import("./views/Spatialize_Operation.vue"),
+      component: () => import("./views/Spatialize_Statistics_Integration.vue"),
     },
     {
       path: "/help",
       name: "Help",
-      component: () => import("./views/Statistics_Integration_copy.vue"),
+      component: () => import("./views/Help.vue"),
     },
   ]
 });
