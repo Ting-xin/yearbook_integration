@@ -1,217 +1,285 @@
 <script setup lang="ts">
 import mapboxgl from "mapbox-gl";
 import type { GeoJSONSourceRaw } from "mapbox-gl";
-import { onMounted, reactive, ref } from "vue";
-import geojsonUrl from '../static/geojson/南京市人口插值.json?url';
-import { AreaSelector } from "@luohc92/vue3-area-selector";
-import type { AreaDataDto, AreaSelectorPropsDto, AreaSelectorResultDto, Resolve, } from "@luohc92/vue3-area-selector";
-import "@luohc92/vue3-area-selector/dist/style.css";
-import Switches from 'vue-switches';
-import * as h3 from 'h3-js';
-import * as turf from "@turf/turf";
+import { onMounted, ref, reactive } from "vue";
 import * as jenks from "turf-jenks";
-import * as geojson2h3 from "geojson2h3";
-
-const isGrid = ref<boolean>(true)
-
-const areaSelectProps = reactive<AreaSelectorPropsDto>({
-  popperClass: "my-area-popup",
-  townLazy: true,
-  level: 0,
-  showAllLevels: true,
-  disabled: [],
-  lazyLoad: (node: AreaDataDto, resolve: Resolve) => {
-    return setTimeout(() => {
-      if (node.code === "110101") {
-        const data: AreaDataDto[] = [{ code: "110101001", name: "东华门街道" }];
-        resolve(data);
-      } else if (node.code === "110102") {
-        const data: AreaDataDto[] = [{ code: "110101002", name: "西华门街道" }];
-        resolve(data);
-      } else {
-        resolve();
-      }
-    }, 2000);
-  },
-});
-const area = ref<AreaSelectorResultDto>({
-  district: '',
-  code: "3201",
-  city: "南京市",
-  province: "江苏省",
-});
-
-const change = (data: AreaSelectorResultDto) => {
-  console.log(data);
-};
-const open = () => {
-  console.log("open");
-};
-const close = (data: AreaSelectorResultDto) => {
-  console.log("close", data);
-};
-
-const accessToken = import.meta.env.VITE_ACCESS_TOKEN;
 
 interface IState {
   geojson?: GeoJSONSourceRaw;
   map?: mapboxgl.Map | undefined;
 }
+const accessToken = import.meta.env.VITE_ACCESS_TOKEN;
+const state = reactive<IState>({
+});
 
 onMounted(() => {
-  const state = reactive<IState>({
-    map: new mapboxgl.Map({
-      accessToken: accessToken,
-      container: 'grid_container',
-      style: 'mapbox://styles/mapbox/light-v11', // style URL
-      center: [118.78, 32], // starting position
-      zoom: 8 // starting zoom
-    })
-  });
+  state.map = new mapboxgl.Map({
+    accessToken: accessToken,
+    container: 'spasta_map',
+    style: 'mapbox://styles/mapbox/light-v11', // style URL
+    center: [118.78, 32], // starting position
+    zoom: 8 // starting zoom
+  })
 
-  state.map?.on('load', async () => {
-    const response = await fetch(geojsonUrl);
-    const data = await response.json();
+  state.map?.on('load', () => {
+    initLoadAllLayer()
+  })
+})
 
-    console.log('data: ', data)
-    console.log('jenks: ', jenks(data, 'pop', 5))
+var map = ref(null)
 
+let layersTableData = ref([
+  {
+    id: '1',
+    name: "公共设施",
+    jsonUrl: "src/static/geojson/南京市公共设施.json",
+    json: "",
+    dataType: "fill",
+    show: true
+  },
+  {
+    id: '2',
+    name: "餐饮",
+    jsonUrl: "src/static/geojson/南京市人口.json",
+    json: "",
+    dataType: "fill",
+    show: false
+  },
+  {
+    id: '3',
+    name: "风景名胜",
+    jsonUrl: "src/static/geojson/南京市人口.json",
+    json: "",
+    dataType: "fill",
+    show: false
+  },
+  {
+    id: '4',
+    name: "公司企业",
+    jsonUrl: "src/static/geojson/南京市人口.json",
+    json: "",
+    dataType: "fill",
+    show: false
+  },
+  {
+    id: '5',
+    name: "购物",
+    jsonUrl: "src/static/geojson/南京市人口.json",
+    json: "",
+    dataType: "fill",
+    show: false
+  },
+  {
+    id: '6',
+    name: "金融保险服务",
+    jsonUrl: "src/static/geojson/南京市人口.json",
+    json: "",
+    dataType: "fill",
+    show: false
+  },
+  {
+    id: '7',
+    name: "科技文化服务",
+    jsonUrl: "src/static/geojson/南京市人口.json",
+    json: "",
+    dataType: "fill",
+    show: false
+  },
+  {
+    id: '8',
+    name: "商务住宅",
+    jsonUrl: "src/static/geojson/南京市人口.json",
+    json: "",
+    dataType: "fill",
+    show: false
+  },
+  {
+    id: '9',
+    name: "生活服务",
+    jsonUrl: "src/static/geojson/南京市人口.json",
+    json: "",
+    dataType: "fill",
+    show: false
+  },
+  {
+    id: '10',
+    name: "体育休闲服务",
+    jsonUrl: "src/static/geojson/南京市人口.json",
+    json: "",
+    dataType: "fill",
+    show: false
+  },
+  {
+    id: '11',
+    name: "医疗保健服务",
+    jsonUrl: "src/static/geojson/南京市人口.json",
+    json: "",
+    dataType: "fill",
+    show: false
+  },
+  {
+    id: '12',
+    name: "住宿服务",
+    jsonUrl: "src/static/geojson/南京市人口.json",
+    json: "",
+    dataType: "fill",
+    show: false
+  },
+])
 
+const value = ref(true)
 
-    if (state.map && !state.geojson) {
-      state.map.addSource("temp_data", {
-        type: "geojson",
-        data: data
-      });
+async function initLoadAllLayer() {
+  for (let i = 0; i < layersTableData.value.length; i++) {
+    let layerInfo = layersTableData.value[i]
 
-      state.map.addLayer({
-        id: "my-layer",
-        source: "temp_data",
+    const response = await fetch(layerInfo.jsonUrl);
+    layersTableData.value[i].json = await response.json()
+
+    state.map?.addSource(layerInfo.id, {
+      type: "geojson",
+      data: layersTableData.value[i].json
+    });
+
+    if (layerInfo.dataType == "fill" && layerInfo.name == '公共设施') {
+      // console.log('jenks: ', jenks((Object as any).values(layersTableData.value[i].json), 'count', 5))
+      state.map?.addLayer({
+        id: layerInfo.id,
+        source: layerInfo.id,
         type: "fill",
-
-        // paint: {
-        //   // 根据面数据的属性值来设置热力图强度
-        //   'heatmap-weight': ['get', 'pop'],
-        //   // 调整权重映射
-        //   'heatmap-intensity': 1,
-        //   // 调整热力图半径
-        //   'heatmap-radius': 50,
-        //   // 调整热力图透明度
-        //   'heatmap-opacity': 0.9,
-        //   // 设置热力图的颜色
-        //   'heatmap-color': [
-        //     'interpolate',
-        //     ['linear'],
-        //     ['heatmap-density'],
-        //     0.0015928455896551726, 'rgba(33,102,172,0)',
-        //     0.7562301826896553, 'rgb(103,169,207)',
-        //     2.0771873278448276, 'rgb(209,229,240)',
-        //     4.410473700324139, 'rgb(253,219,199)',
-        //     8.115882904358621, 'rgb(239,138,98)',
-        //     12.625668643544829, 'rgb(178,24,43)'
-        //   ]
-        // }
-
         paint: {
           'fill-color': {
             type: 'exponential',
-            property: 'pop',
+            property: 'count',
             stops: [
-              [0.0015928455896551726, '#bdd7e7'],
-              [0.7562301826896553, '#92c5de'],
-              [2.0771873278448276, '#0571b0'],
-              [4.410473700324139, '#f4a582'],
-              [8.115882904358621, '#ca0020'],
-              [12.625668643544829, '#f00'],
+              [1, '#bdd7e7'],
+              [5, '#92c5de'],
+              [12, '#0571b0'],
+              [23, '#f4a582'],
+              [46, '#ca0020'],
+              [66, '#f00'],
             ],
           },
           'fill-opacity': 0.7,
         }
-        });
-
-      state.geojson = state.map.getSource("temp_data") as GeoJSONSourceRaw;
+      });
+    } else if (layerInfo.dataType == "fill" && layerInfo.name == '南京市人口') {
+      state.map?.addLayer({
+        id: layerInfo.id,
+        source: layerInfo.id,
+        type: "fill",
+        paint: {
+          'fill-color': {
+            type: 'interval',
+            property: 'pop',
+            stops: [
+              [0.461925221, '#bdd7e7'],
+              [2.498065446, '#92c5de'],
+              [6.53525382, '#0571b0'],
+              [15.08468744, '#f4a582'],
+              [17.35671835, '#ca0020'],
+            ],
+          },
+          'fill-opacity': 0.7,
+        }
+      });
+    } else if (layerInfo.dataType == "fill") {
+      state.map?.addLayer({
+        id: layerInfo.id,
+        source: layerInfo.id,
+        type: "fill",
+        paint: {
+          "fill-color": "#" + Math.random().toString(16).substr(2, 6),
+          "fill-opacity": 0.5
+        }
+      });
+    } else if (layerInfo.dataType == "line") {
+      state.map?.addLayer({
+        id: layerInfo.id,
+        source: layerInfo.id,
+        type: "line",
+        paint: {
+          "line-color": "#" + Math.random().toString(16).substr(2, 6),
+          "line-opacity": 1,
+          "line-width": 2
+        }
+      });
+    } else {
+      state.map?.addLayer({
+        id: layerInfo.id,
+        source: layerInfo.id,
+        type: "circle",
+        paint: {
+          "circle-color": "#" + Math.random().toString(16).substr(2, 6),
+          "circle-opacity": 0.5
+        }
+      });
     }
-  })
-})
+
+    if (!layerInfo.show) {
+      handleLayoutChange(layerInfo.id, "visibility", "none");
+    }
+  }
+}
+
+
+function handleLayerShowChange(row: any) {
+  console.log(row)
+  if (row.show) {
+    handleLayoutChange(row.id, "visibility", "visible");
+  } else {
+    handleLayoutChange(row.id, "visibility", "none");
+  }
+}
+//
+// function handleAddSource(newSource) {
+//   console.log("add new source：", newSource);
+//   state.map?.addSource(newSource.sourceName, {
+//     type: newSource.sourceType,
+//     url: newSource.sourceUrl
+//   });
+// }
+
+// function handleAddLayer(newLayer) {
+//   console.log("add new layer：", newLayer);
+//   state.map?.addLayer(newLayer);
+// }
+
+function handleRemoveSource(sourceName: string) {
+  state.map?.removeSource(sourceName);
+}
+
+function handleRemoveLayer(layerName: string) {
+  state.map?.removeLayer(layerName);
+}
+
+function handleLayoutChange(layerName: string, key: string, value: string) {
+  console.log("layout:", layerName, key, value);
+  state.map?.setLayoutProperty(layerName, key, value);
+}
+
+function handlePaintChange(layerName: string, key: string, value: string) {
+  console.log("paint:", layerName, key, value);
+  state.map?.setPaintProperty(layerName, key, value);
+}
+
 </script>
 
 <template>
-  <main>
-    <div class="top">
-      <div class="label">
-        <div>时间(年):</div>
-        <div>
-          <input id="time_input" />
-        </div>
-      </div>
-      <div class="label">
-        <div>地点:</div>
-        <div>
-          <AreaSelector @change="change" @open="open" @close="close" :props="areaSelectProps" v-model="area">
-          </AreaSelector>
-        </div>
-      </div>
-      <div>
-        <div>地理网格</div>
-        <switches v-model="isGrid"></switches>
-        <div>行政区划</div>
-      </div>
+  <div style="display: flex; height: 800px;">
+    <div style="width: 400px">
+      <h3 style="text-align: center">南京市POI-GeoCube</h3>
+      <el-table :data="layersTableData" style="width: 100%" height="100%">
+        <el-table-column prop="name" label="名称">
+        </el-table-column>
+        <el-table-column label="操作">
+          <template #default="scope">
+            <el-switch v-model="scope.row.show" @change="handleLayerShowChange(scope.row)" />
+          </template>
+        </el-table-column>
+      </el-table>
 
     </div>
-    <div class="buttom">
-      <div id="grid_container"></div>
-    </div>
-  </main>
+    <div id="spasta_map" style="width: 100%"></div>
+  </div>
 </template>
-
-<style scoped>
-main {
-  width: 100%;
-  height: 100%;
-}
-
-main .top {
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 60px;
-  font-family: 'Roboto Mono', 'Noto Sans SC';
-  font-size: 18px;
-  font-weight: bold;
-}
-
-main .top div {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-main .top .label {
-  gap: 20px;
-}
-
-#grid_container {
-  min-height: 700px;
-  height: 100%;
-  width: 100%;
-  position: relative;
-}
-
-#time_input {
-  outline-style: none;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  padding: 6px;
-  width: 80px;
-  font-size: 14px;
-  font-family: "Microsoft soft";
-}
-
-#time_input:focus {
-  border-color: #66afe9;
-  outline: 0;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6)
-}
-</style>

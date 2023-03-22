@@ -13,7 +13,7 @@ const state = reactive<IState>({
 onMounted(() => {
   state.map = new mapboxgl.Map({
     accessToken: accessToken,
-    container: 'map',
+    container: 'help_map',
     style: 'mapbox://styles/mapbox/light-v11', // style URL
     center: [118.78, 32], // starting position
     zoom: 8 // starting zoom
@@ -29,18 +29,18 @@ var map = ref(null)
 let layersTableData = ref([
   {
     id: '1',
-    name: "公共设施",
-    jsonUrl: "src/static/geojson/鼓楼区.json",
+    name: "南京市人口插值",
+    jsonUrl: "src/static/geojson/南京市人口插值.json",
     json: "",
     dataType: "fill",
     show: true
   },
   {
     id: '2',
-    name: "餐饮",
-    jsonUrl: "src/static/geojson/南京市.json",
+    name: "南京市人口",
+    jsonUrl: "src/static/geojson/南京市人口.json",
     json: "",
-    dataType: "line",
+    dataType: "fill",
     show: false
   },
   {
@@ -133,14 +133,54 @@ async function initLoadAllLayer() {
 
     const response = await fetch(layerInfo.jsonUrl);
     layersTableData.value[i].json = await response.json()
-    console.log(layersTableData.value[i].json)
 
     state.map?.addSource(layerInfo.id, {
       type: "geojson",
       data: layersTableData.value[i].json
     });
 
-    if (layerInfo.dataType == "fill") {
+    if (layerInfo.dataType == "fill" && layerInfo.name == '南京市人口插值') {
+      state.map?.addLayer({
+        id: layerInfo.id,
+        source: layerInfo.id,
+        type: "fill",
+        paint: {
+          'fill-color': {
+            type: 'exponential',
+            property: 'pop',
+            stops: [
+              [0.0015928455896551726, '#bdd7e7'],
+              [0.7562301826896553, '#92c5de'],
+              [2.0771873278448276, '#0571b0'],
+              [4.410473700324139, '#f4a582'],
+              [8.115882904358621, '#ca0020'],
+              [12.625668643544829, '#f00'],
+            ],
+          },
+          'fill-opacity': 0.7,
+        }
+      });
+    } else if (layerInfo.dataType == "fill" && layerInfo.name == '南京市人口') {
+      state.map?.addLayer({
+        id: layerInfo.id,
+        source: layerInfo.id,
+        type: "fill",
+        paint: {
+          'fill-color': {
+            type: 'interval',
+            property: 'pop',
+            stops: [
+              [0.461925221, '#bdd7e7'],
+              [2.498065446, '#92c5de'],
+              [6.53525382, '#0571b0'],
+              [15.08468744, '#f4a582'],
+              [17.35671835, '#ca0020'],
+            ],
+          },
+          'fill-opacity': 0.7,
+        }
+      });
+    } else if (layerInfo.dataType == "fill") {
       state.map?.addLayer({
         id: layerInfo.id,
         source: layerInfo.id,
@@ -173,7 +213,7 @@ async function initLoadAllLayer() {
       });
     }
 
-    if(!layerInfo.show) {
+    if (!layerInfo.show) {
       handleLayoutChange(layerInfo.id, "visibility", "none");
     }
   }
@@ -237,6 +277,6 @@ function handlePaintChange(layerName: string, key: string, value: string) {
       </el-table>
 
     </div>
-    <div id="map" style="width: 100%"></div>
+    <div id="help_map" style="width: 100%"></div>
   </div>
 </template>
