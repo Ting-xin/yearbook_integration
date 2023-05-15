@@ -46,7 +46,7 @@ const router = createRouter({
     {
       path: "/help",
       name: "Help",
-      component: () => import("./views/Help.vue"),
+      component: () => import("./views/Fujian_case.vue"),
     },
   ]
 });

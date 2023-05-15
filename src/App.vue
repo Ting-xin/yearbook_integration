@@ -33,7 +33,7 @@ const showUl = (name: string) => {
 <template>
   <div class="container">
     <div class="header">
-      <div class="title"><a href="/">统计年鉴空整合框架</a></div>
+      <div class="title"><a href="/">统计年鉴空间整合框架</a></div>
       <section>
         <ul class="subitem">
           <li><button class="bttn-minimal bttn-md bttn-primary"><router-link to="/division">行政区划</router-link></button>
@@ -93,7 +93,6 @@ body {
 }
 
 .container {
-  width: 98%;
   background-color: #f6f6f6;
 }
 
@@ -167,7 +166,7 @@ body {
 
 .content {
   /* padding: 20% 0; */
-  margin: 10px;
+  margin: 10px 0;
   background-color: white;
   box-shadow: 0 0 16px #ccc;
   display: flex;

@@ -131,7 +131,7 @@ onMounted(() => {
   <main>
     <div class="top">
       <div class="label">
-        <div>时间(年):</div>
+        <div>统计指标：</div>
         <div>
           <input id="time_input" />
         </div>
@@ -144,9 +144,9 @@ onMounted(() => {
         </div>
       </div>
       <div>
-        <div>地理网格</div>
-        <switches v-model="isGrid"></switches>
         <div>行政区划</div>
+        <switches v-model="isGrid"></switches>
+        <div>地理网格</div>
       </div>
 
     </div>

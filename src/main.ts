@@ -9,7 +9,7 @@ import AreaSelector from "@luohc92/vue3-area-selector";
 
 
 import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
+// import 'element-plus/dist/index.css'
 
 const app = createApp(App);
 app.component('EasyDataTable', Vue3EasyDataTable);
